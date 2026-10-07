@@ -6,92 +6,100 @@
   <title>Adwful</title>
   <style>
     *{box-sizing:border-box}
-    html,body{margin:0;background:#0c0d10;color:#f4f4f5;font-family:Inter,system-ui,Arial,sans-serif}
-    body{min-height:100vh}
-    .notice{position:sticky;top:0;z-index:10;padding:10px 14px;background:#17181d;border-bottom:1px solid #2c2e36;font-size:12px;color:#b9bbc6}
-    .wall{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:8px}
-    .ad{min-height:34vh;border:1px solid #30323a;background:#111216;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px;overflow:auto}
-    .placeholder{color:#90939f;font-size:12px}
-    @media(max-width:900px){.wall{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:560px){.wall{grid-template-columns:1fr}}
+    html,body{margin:0;width:100%;min-height:100%;background:#000;overflow-x:hidden}
+    body{font-family:Inter,system-ui,Arial,sans-serif}
+    .stack{width:100%;display:flex;flex-direction:column;align-items:stretch}
+    .ad{width:100%;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#000}
+    .ad > *{max-width:100%}
+    iframe{max-width:100%;border:0}
+    #container-55bd8aeabd90917c2c56507883ab80df{width:100%;min-height:100vh}
+    @media(max-width:760px){
+      .ad{min-height:100svh}
+      .ad iframe{transform-origin:center center}
+    }
   </style>
 </head>
 <body>
-  <div class="notice">Automatic ad units are loaded from the configured ad network.</div>
-  <main class="wall">
+  <main class="stack">
     <section class="ad">
       <script async="async" data-cfasync="false" src="https://biomanos.org/21/55bd8aeabd90917c2c56507883ab80df"></script>
       <div id="container-55bd8aeabd90917c2c56507883ab80df"></div>
     </section>
 
     <section class="ad">
-      <script>
-        atOptions = {
-          'key' : '797c350931164b2af01d762860993be3',
-          'format' : 'iframe',
-          'height' : 90,
-          'width' : 728,
-          'params' : {}
-        };
-      </script>
-      <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+      <div>
+        <script>
+          atOptions = {
+            'key' : '797c350931164b2af01d762860993be3',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+      </div>
     </section>
 
     <section class="ad">
-      <script>
-        atOptions = {
-          'key' : '008faa77f149997884b507f444cfb4cd',
-          'format' : 'iframe',
-          'height' : 50,
-          'width' : 320,
-          'params' : {}
-        };
-      </script>
-      <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+      <div>
+        <script>
+          atOptions = {
+            'key' : '008faa77f149997884b507f444cfb4cd',
+            'format' : 'iframe',
+            'height' : 50,
+            'width' : 320,
+            'params' : {}
+          };
+        </script>
+        <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+      </div>
     </section>
 
     <section class="ad">
-      <script>
-        atOptions = {
-          'key' : 'd770303609f4c4028b2b1446cf810ac1',
-          'format' : 'iframe',
-          'height' : 600,
-          'width' : 160,
-          'params' : {}
-        };
-      </script>
-      <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+      <div>
+        <script>
+          atOptions = {
+            'key' : 'd770303609f4c4028b2b1446cf810ac1',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+      </div>
     </section>
 
     <section class="ad">
-      <script>
-        atOptions = {
-          'key' : '74623eb82832c7260317b236874c435f',
-          'format' : 'iframe',
-          'height' : 300,
-          'width' : 160,
-          'params' : {}
-        };
-      </script>
-      <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+      <div>
+        <script>
+          atOptions = {
+            'key' : '74623eb82832c7260317b236874c435f',
+            'format' : 'iframe',
+            'height' : 300,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+      </div>
     </section>
 
     <section class="ad">
-      <script>
-        atOptions = {
-          'key' : 'aea01d34a2c5e0b8c07ee9c98a71a19a',
-          'format' : 'iframe',
-          'height' : 60,
-          'width' : 468,
-          'params' : {}
-        };
-      </script>
-      <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+      <div>
+        <script>
+          atOptions = {
+            'key' : 'aea01d34a2c5e0b8c07ee9c98a71a19a',
+            'format' : 'iframe',
+            'height' : 60,
+            'width' : 468,
+            'params' : {}
+          };
+        </script>
+        <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+      </div>
     </section>
-
-    <section class="ad"><div class="placeholder">Additional ad slot</div></section>
-    <section class="ad"><div class="placeholder">Additional ad slot</div></section>
-    <section class="ad"><div class="placeholder">Additional ad slot</div></section>
   </main>
 
   <script data-cfasync="false" src="https://benchform.org/1/bfe86e73a31386d4d08fe52554d3ddb4"></script>

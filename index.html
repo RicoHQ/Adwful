@@ -50,7 +50,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   const BATCH = 10;
   const MAX_TOTAL = 1000;
   let maxConcurrent = 1;
-  let maxLive = 12;
+  let maxLive = Infinity;
 
   let created = 0;
   let activeLoads = 0;
@@ -89,23 +89,11 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
       const r = slot.getBoundingClientRect();
       if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) visible++;
     }
-    maxLive = Math.max(4, visible);
-    maxConcurrent = Math.max(1, visible);
+    maxLive = Infinity;\n    maxConcurrent = Math.max(1, visible);
   }
 
   function evictFar(){
-    updateLiveCap();
-    const live = [...state.entries()]
-      .filter(([,s]) => s.live)
-      .map(([slot]) => slot)
-      .sort((a,b) => distanceToViewport(b) - distanceToViewport(a));
-    while (live.length > maxLive) {
-      const slot = live.shift();
-      const st = state.get(slot);
-      if (!st || st.loading) continue;
-      slot.querySelector('.mount').replaceChildren();
-      state.set(slot,{live:false,loading:false});
-    }
+    // Intentionally keep all loaded ads mounted.
   }
 
   function finish(slot){

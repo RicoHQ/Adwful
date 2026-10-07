@@ -57,8 +57,8 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   const slots = [...document.querySelectorAll('.slot')];
   const state = new Map();
   let activeLoads = 0;
-  const MAX_CONCURRENT = 3;
-  const MAX_LIVE = 24;
+  const MAX_CONCURRENT = 1;
+  const MAX_LIVE = 18;
   const pending = [];
 
   function metrics(){

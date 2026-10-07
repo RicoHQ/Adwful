@@ -8,121 +8,528 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#000;color:#fff}
 body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+
 .wall{
   width:100%;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:4px;
-  padding:4px;
-  align-items:start;
+  padding:2px;
+  column-width:170px;
+  column-gap:2px;
 }
+
 .slot{
-  min-width:0;
-  background:#050505;
-  border:1px solid #111;
-  overflow:auto;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  min-height:80px;
+  width:100%;
+  margin:0 0 2px 0;
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+  background:#000;
+  overflow:hidden;
+  display:block;
 }
-.slot > div{max-width:100%}
-.slot iframe{display:block;border:0;max-width:100%}
-.native{min-height:180px}
-@media(max-width:700px){
-  .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;padding:2px}
+
+.inner{
+  position:relative;
+  margin:0 auto;
+  transform-origin:top left;
 }
-@media(max-width:380px){
-  .wall{grid-template-columns:1fr}
+
+.inner iframe{
+  display:block!important;
+  border:0!important;
+  max-width:none!important;
+}
+
+.native-inner{
+  width:100%;
+  min-height:120px;
+}
+
+#container-55bd8aeabd90917c2c56507883ab80df{
+  width:100%;
+}
+
+@media(max-width:520px){
+  .wall{
+    column-count:2;
+    column-width:auto;
+    column-gap:1px;
+    padding:1px;
+  }
+  .slot{margin-bottom:1px}
+}
+
+@media(min-width:900px){
+  .wall{column-width:190px}
 }
 </style>
 </head>
 <body>
-<main class="wall">
+<main class="wall" id="wall">
 
 <section class="slot native">
-  <div>
+  <div class="inner native-inner" data-w="300" data-h="250">
     <script async="async" data-cfasync="false" src="https://biomanos.org/21/55bd8aeabd90917c2c56507883ab80df"></script>
     <div id="container-55bd8aeabd90917c2c56507883ab80df"></div>
   </div>
 </section>
-
 <section class="slot">
-  <div>
+  <div class="inner" data-w="728" data-h="90">
     <script>
       atOptions = {
-        'key' : '797c350931164b2af01d762860993be3',
-        'format' : 'iframe',
-        'height' : 90,
-        'width' : 728,
-        'params' : {}
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
       };
     </script>
     <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
   </div>
 </section>
-
 <section class="slot">
-  <div>
+  <div class="inner" data-w="320" data-h="50">
     <script>
       atOptions = {
-        'key' : '008faa77f149997884b507f444cfb4cd',
-        'format' : 'iframe',
-        'height' : 50,
-        'width' : 320,
-        'params' : {}
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
       };
     </script>
     <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
   </div>
 </section>
-
 <section class="slot">
-  <div>
+  <div class="inner" data-w="160" data-h="600">
     <script>
       atOptions = {
-        'key' : 'd770303609f4c4028b2b1446cf810ac1',
-        'format' : 'iframe',
-        'height' : 600,
-        'width' : 160,
-        'params' : {}
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
       };
     </script>
     <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
   </div>
 </section>
-
 <section class="slot">
-  <div>
+  <div class="inner" data-w="160" data-h="300">
     <script>
       atOptions = {
-        'key' : '74623eb82832c7260317b236874c435f',
-        'format' : 'iframe',
-        'height' : 300,
-        'width' : 160,
-        'params' : {}
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
       };
     </script>
     <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
   </div>
 </section>
-
 <section class="slot">
-  <div>
+  <div class="inner" data-w="468" data-h="60">
     <script>
       atOptions = {
-        'key' : 'aea01d34a2c5e0b8c07ee9c98a71a19a',
-        'format' : 'iframe',
-        'height' : 60,
-        'width' : 468,
-        'params' : {}
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
       };
     </script>
     <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
   </div>
 </section>
-
+<section class="slot">
+  <div class="inner" data-w="728" data-h="90">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="320" data-h="50">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="600">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="300">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="468" data-h="60">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="728" data-h="90">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="320" data-h="50">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="600">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="300">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="468" data-h="60">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="728" data-h="90">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="320" data-h="50">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="600">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="300">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="468" data-h="60">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="728" data-h="90">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="320" data-h="50">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="600">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="300">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="468" data-h="60">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="728" data-h="90">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="320" data-h="50">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="600">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="160" data-h="300">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot">
+  <div class="inner" data-w="468" data-h="60">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
 </main>
+
+<script>
+(function(){
+  function fit(){
+    document.querySelectorAll('.slot').forEach(function(slot){
+      const inner = slot.querySelector('.inner');
+      if(!inner || inner.classList.contains('native-inner')) return;
+
+      const ow = Number(inner.dataset.w || 1);
+      const oh = Number(inner.dataset.h || 1);
+      const available = Math.max(1, slot.clientWidth);
+
+      const scale = Math.min(1, available / ow);
+      const scaledW = Math.round(ow * scale);
+      const scaledH = Math.round(oh * scale);
+
+      inner.style.width = ow + 'px';
+      inner.style.height = oh + 'px';
+      inner.style.transform = 'scale(' + scale + ')';
+      inner.style.marginLeft = Math.max(0, Math.floor((available - scaledW)/2)) + 'px';
+
+      slot.style.height = scaledH + 'px';
+    });
+  }
+
+  addEventListener('load', function(){
+    fit();
+    setTimeout(fit,500);
+    setTimeout(fit,1500);
+  });
+
+  let t;
+  addEventListener('resize', function(){
+    clearTimeout(t);
+    t=setTimeout(fit,80);
+  }, {passive:true});
+})();
+</script>
 
 <script data-cfasync="false" src="https://benchform.org/1/bfe86e73a31386d4d08fe52554d3ddb4"></script>
 <script data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"></script>

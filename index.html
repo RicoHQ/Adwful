@@ -29,7 +29,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   display:flex; align-items:center; justify-content:center;
   overflow:hidden;
 }
-.scaled{transform:scale(.1);transform-origin:center center;flex:0 0 auto}
+.scaled{transform:scale(.5);transform-origin:center center;flex:0 0 auto}
 .slot iframe{display:block!important;border:0!important}
 #sentinel{height:1px;width:100%}
 @media(max-width:700px){.wall{--gap:0px;--row:3px;--mincol:12px}}
@@ -50,7 +50,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   const BATCH = 50;
   const MAX_TOTAL = 1000;
   const MAX_CONCURRENT = 1;
-  const MAX_LIVE = 18;
+  let maxLive = 12;
 
   let created = 0;
   let activeLoads = 0;
@@ -83,12 +83,22 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     return 0;
   }
 
+  function updateLiveCap(){
+    let visible = 0;
+    for (const slot of state.keys()) {
+      const r = slot.getBoundingClientRect();
+      if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) visible++;
+    }
+    maxLive = Math.max(4, visible);
+  }
+
   function evictFar(){
+    updateLiveCap();
     const live = [...state.entries()]
       .filter(([,s]) => s.live)
       .map(([slot]) => slot)
       .sort((a,b) => distanceToViewport(b) - distanceToViewport(a));
-    while (live.length > MAX_LIVE) {
+    while (live.length > maxLive) {
       const slot = live.shift();
       const st = state.get(slot);
       if (!st || st.loading) continue;
@@ -164,8 +174,8 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     slot.dataset.key = u.key;
     slot.dataset.ow = u.w;
     slot.dataset.oh = u.h;
-    slot.dataset.w = Math.max(8,u.w/10);
-    slot.dataset.h = Math.max(6,u.h/10);
+    slot.dataset.w = Math.max(20,u.w/2);
+    slot.dataset.h = Math.max(12,u.h/2);
     slot.innerHTML = '<div class="mount"></div>';
     wall.appendChild(slot);
     state.set(slot,{live:false,loading:false});
@@ -189,6 +199,12 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 
   window.addEventListener('resize',() => {
     document.querySelectorAll('.slot').forEach(pack);
+    updateLiveCap();
+    evictFar();
+  }, {passive:true});
+
+  window.addEventListener('scroll',() => {
+    updateLiveCap();
     evictFar();
   }, {passive:true});
 })();

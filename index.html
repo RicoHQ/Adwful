@@ -89,7 +89,8 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
       const r = slot.getBoundingClientRect();
       if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) visible++;
     }
-    maxLive = Infinity;\n    maxConcurrent = Math.max(1, visible);
+    maxLive = Infinity;
+    maxConcurrent = 1;
   }
 
   function evictFar(){
@@ -143,7 +144,16 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
       finish(slot);
     };
 
-    src.onload = complete;
+    src.onload = () => {
+      let checks = 0;
+      const waitForRender = setInterval(() => {
+        checks++;
+        if (mountPoint.querySelector('iframe') || checks >= 20) {
+          clearInterval(waitForRender);
+          complete();
+        }
+      }, 100);
+    };
     src.onerror = complete;
 
     wrap.append(cfg,src);
@@ -169,7 +179,16 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
       })
       .sort((a,b) => distanceToViewport(a) - distanceToViewport(b));
 
-    for (const slot of visibleSlots) mount(slot);
+    for (const slot of visibleSlots) {
+      if (!pending.includes(slot)) {
+        const st = state.get(slot);
+        if (!st?.live && !st?.loading) pending.push(slot);
+      }
+    }
+    while (pending.length && activeLoads < maxConcurrent) {
+      const next = pending.shift();
+      if (next) mount(next);
+    }
   }
 
   function makeSlot(index){

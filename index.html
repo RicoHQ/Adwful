@@ -213,10 +213,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     const tail = all.slice(-Math.min(BATCH, all.length));
     return tail.every(slot => {
       const st = state.get(slot);
-      if (!st?.live) return false;
-      const mount = slot.querySelector('.mount');
-      const frame = mount?.querySelector('iframe');
-      return !!frame || (mount && mount.childElementCount > 0);
+      return !!st && st.live === true && st.loading === false;
     });
   }
 

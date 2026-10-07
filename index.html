@@ -29,7 +29,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   display:flex; align-items:center; justify-content:center;
   overflow:hidden;
 }
-.scaled{transform:scale(.5);transform-origin:center center;flex:0 0 auto}
+.scaled{transform:scale(1);transform-origin:center center;flex:0 0 auto}
 .slot iframe{display:block!important;border:0!important}
 #sentinel{height:1px;width:100%}
 @media(max-width:700px){.wall{--gap:0px;--row:3px;--mincol:12px}}
@@ -179,8 +179,8 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     slot.dataset.key = u.key;
     slot.dataset.ow = u.w;
     slot.dataset.oh = u.h;
-    slot.dataset.w = Math.max(20,u.w/2);
-    slot.dataset.h = Math.max(12,u.h/2);
+    slot.dataset.w = Math.max(40,u.w);
+    slot.dataset.h = Math.max(24,u.h);
     slot.innerHTML = '<div class="mount"></div>';
     wall.appendChild(slot);
     state.set(slot,{live:false,loading:false});

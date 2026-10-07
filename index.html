@@ -5,49 +5,85 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Adwful</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:#fff}
-body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
-.wall{
-  width:100%;
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:3px;
-  padding:3px;
-  align-items:start;
-}
-.slot{
-  min-width:0;
-  min-height:0;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-  background:#fff;
-  contain:layout paint style;
-}
-.mount{
-  width:100%;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  overflow:hidden;
-}
-.scaled{
-  flex:0 0 auto;
-  transform-origin:center center;
-}
-.slot iframe{display:block!important;border:0!important;max-width:none!important}
-#sentinel{height:1px;width:100%}
-@media(max-width:700px){
-  .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;padding:2px}
-}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#000;color:#fff}
+  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+
+  .shell{
+    width:100%;
+    max-width:1600px;
+    margin:0 auto;
+    padding:4px;
+  }
+
+  .wall{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:4px;
+    align-items:start;
+  }
+
+  .slot{
+    position:relative;
+    min-width:0;
+    background:#050505;
+    border:1px solid #111;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .slot::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg,#050505,#0a0a0a);
+    pointer-events:none;
+  }
+
+  .mount{
+    position:relative;
+    z-index:1;
+    width:100%;
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+
+  .scaled{
+    flex:0 0 auto;
+    transform-origin:center center;
+  }
+
+  .slot iframe{
+    display:block!important;
+    border:0!important;
+    max-width:none!important;
+  }
+
+  @media (max-width:700px){
+    .shell{padding:2px}
+    .wall{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:2px;
+    }
+  }
+
+  @media (max-width:360px){
+    .wall{
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:1px;
+    }
+  }
 </style>
 </head>
 <body>
-<main class="wall" id="wall"></main>
-<div id="sentinel"></div>
+  <div class="shell">
+    <main id="wall" class="wall"></main>
+  </div>
 
 <script>
 (() => {
@@ -60,54 +96,56 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   ];
 
   const wall = document.getElementById('wall');
-  const sentinel = document.getElementById('sentinel');
+  const TOTAL = 100;
+  const queue = [];
+  const state = new WeakMap();
+  let running = 0;
 
-  const INITIAL = 100;
-  const BATCH = 20;
-  const MAX_TOTAL = 1000;
-
-  let created = 0;
-  let activeLoads = 0;
-  const pending = [];
-  const state = new Map();
-
-  function layoutSlot(slot){
-    const ow = Number(slot.dataset.ow);
-    const oh = Number(slot.dataset.oh);
-    const available = Math.max(1, slot.clientWidth || 180);
-    const scale = Math.min(1, available / ow);
-    slot.style.height = Math.max(34, Math.round(oh * scale)) + 'px';
-    slot.dataset.scale = scale.toFixed(4);
-
-    const wrap = slot.querySelector('.scaled');
-    if (wrap) wrap.style.transform = 'scale(' + scale + ')';
+  function concurrency(){
+    return innerWidth <= 700 ? 2 : 4;
   }
 
-  function finish(slot){
-    activeLoads = Math.max(0, activeLoads - 1);
-    state.set(slot,{live:true,loading:false});
+  function sizeSlot(slot){
+    const ow = Number(slot.dataset.ow);
+    const oh = Number(slot.dataset.oh);
+    const width = Math.max(1, slot.clientWidth);
+    const scale = Math.min(1, width / ow);
+    const visualH = Math.max(42, Math.round(oh * scale));
+
+    slot.style.height = visualH + 'px';
+    slot.dataset.scale = String(scale);
+
+    const wrap = slot.querySelector('.scaled');
+    if(wrap){
+      wrap.style.width = ow + 'px';
+      wrap.style.height = oh + 'px';
+      wrap.style.transform = 'scale(' + scale + ')';
+    }
+  }
+
+  function done(slot){
+    const s = state.get(slot) || {};
+    state.set(slot,{...s,loaded:true,loading:false});
+    running = Math.max(0,running-1);
     pump();
   }
 
-  function mount(slot){
-    const st = state.get(slot);
-    if (!st || st.live || st.loading) return;
+  function load(slot){
+    const s = state.get(slot) || {};
+    if(s.loaded || s.loading) return;
 
-    const maxConcurrent = innerWidth <= 700 ? 2 : 3;
-    if (activeLoads >= maxConcurrent) {
-      if (!pending.includes(slot)) pending.push(slot);
+    if(running >= concurrency()){
+      if(!queue.includes(slot)) queue.push(slot);
       return;
     }
 
-    activeLoads++;
-    state.set(slot,{live:false,loading:true});
+    running++;
+    state.set(slot,{loaded:false,loading:true});
 
-    const mountPoint = slot.querySelector('.mount');
-    mountPoint.replaceChildren();
-
+    const key = slot.dataset.key;
     const ow = Number(slot.dataset.ow);
     const oh = Number(slot.dataset.oh);
-    const key = slot.dataset.key;
+    const mount = slot.querySelector('.mount');
 
     const wrap = document.createElement('div');
     wrap.className = 'scaled';
@@ -115,57 +153,57 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     wrap.style.height = oh + 'px';
     wrap.style.transform = 'scale(' + (slot.dataset.scale || 1) + ')';
 
-    const cfg = document.createElement('script');
-    cfg.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
+    const config = document.createElement('script');
+    config.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
 
-    const src = document.createElement('script');
-    src.src = 'https://biomanos.org/22/' + key;
-    src.async = true;
+    const source = document.createElement('script');
+    source.src = 'https://biomanos.org/22/' + key;
+    source.async = true;
 
-    let done = false;
-    const complete = () => {
-      if (done) return;
-      done = true;
-      finish(slot);
+    let finished = false;
+    const finish = () => {
+      if(finished) return;
+      finished = true;
+      done(slot);
     };
 
-    src.onload = () => {
-      let checks = 0;
-      const timer = setInterval(() => {
-        checks++;
-        if (mountPoint.querySelector('iframe') || checks >= 20) {
-          clearInterval(timer);
-          complete();
+    source.onload = () => {
+      let tries = 0;
+      const check = setInterval(() => {
+        tries++;
+        if(mount.querySelector('iframe') || tries >= 25){
+          clearInterval(check);
+          finish();
         }
       },100);
     };
-    src.onerror = complete;
 
-    wrap.append(cfg,src);
-    mountPoint.appendChild(wrap);
-    setTimeout(complete,5000);
+    source.onerror = finish;
+    setTimeout(finish,5000);
+
+    wrap.append(config,source);
+    mount.replaceChildren(wrap);
   }
 
   function pump(){
-    const maxConcurrent = innerWidth <= 700 ? 2 : 3;
-    while (pending.length && activeLoads < maxConcurrent) {
-      const next = pending.shift();
-      if (next) mount(next);
+    while(queue.length && running < concurrency()){
+      const next = queue.shift();
+      if(next) load(next);
     }
   }
 
-  const io = new IntersectionObserver(entries => {
+  const observer = new IntersectionObserver(entries => {
     entries
       .filter(e => e.isIntersecting)
       .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top)
       .forEach(e => {
-        if (!pending.includes(e.target)) pending.push(e.target);
+        if(!queue.includes(e.target)) queue.push(e.target);
       });
     pump();
-  }, {rootMargin:'900px 0px',threshold:0.01});
+  },{rootMargin:'1000px 0px',threshold:0.01});
 
-  function makeSlot(index){
-    const u = UNITS[index % UNITS.length];
+  for(let i=0;i<TOTAL;i++){
+    const u = UNITS[i % UNITS.length];
     const slot = document.createElement('section');
     slot.className = 'slot';
     slot.dataset.key = u.key;
@@ -173,31 +211,18 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     slot.dataset.oh = u.h;
     slot.innerHTML = '<div class="mount"></div>';
     wall.appendChild(slot);
-    state.set(slot,{live:false,loading:false});
-    requestAnimationFrame(() => layoutSlot(slot));
-    io.observe(slot);
+    state.set(slot,{loaded:false,loading:false});
+    requestAnimationFrame(() => sizeSlot(slot));
+    observer.observe(slot);
   }
-
-  function appendBatch(count){
-    const end = Math.min(MAX_TOTAL, created + count);
-    for (; created < end; created++) makeSlot(created);
-  }
-
-  appendBatch(INITIAL);
-
-  const moreObserver = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting) && created < MAX_TOTAL) {
-      appendBatch(BATCH);
-    }
-  }, {rootMargin:'1200px 0px'});
-  moreObserver.observe(sentinel);
 
   let resizeTimer;
   addEventListener('resize',() => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      document.querySelectorAll('.slot').forEach(layoutSlot);
-    },80);
+      document.querySelectorAll('.slot').forEach(sizeSlot);
+      pump();
+    },100);
   },{passive:true});
 })();
 </script>

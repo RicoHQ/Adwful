@@ -9,31 +9,46 @@
 html,body{margin:0;min-height:100%;background:#fff}
 body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 .wall{
-  --gap:1px; --row:4px; --mincol:18px;
+  --gap:1px;
   width:100%;
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(var(--mincol),1fr));
-  grid-auto-rows:var(--row);
+  grid-template-columns:repeat(12,minmax(0,1fr));
   grid-auto-flow:dense;
   gap:var(--gap);
   padding:var(--gap);
+  align-items:start;
 }
 .slot{
-  min-width:0; min-height:0;
-  display:flex; align-items:center; justify-content:center;
-  overflow:hidden; background:#fff;
+  min-width:0;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  background:#fff;
   contain:layout paint style;
 }
 .mount{
-  width:100%; height:100%;
-  display:flex; align-items:center; justify-content:center;
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   overflow:hidden;
 }
-.scaled{transform:scale(1);transform-origin:center center;flex:0 0 auto}
-.slot iframe{display:block!important;border:0!important}
+.scaled{
+  flex:0 0 auto;
+  transform-origin:center center;
+}
+.slot iframe{display:block!important;border:0!important;max-width:none!important}
 #sentinel{height:1px;width:100%}
-@media(max-width:700px){.wall{--gap:0px;--row:3px;--mincol:12px}}
-@media(max-width:420px){.wall{--row:2px;--mincol:9px}}
+
+@media(max-width:700px){
+  .wall{--gap:0px;grid-template-columns:repeat(16,minmax(0,1fr))}
+}
+@media(max-width:420px){
+  .wall{grid-template-columns:repeat(20,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
@@ -42,74 +57,92 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 
 <script>
 (() => {
-  const UNITS = [{"key":"797c350931164b2af01d762860993be3","w":728,"h":90},{"key":"008faa77f149997884b507f444cfb4cd","w":320,"h":50},{"key":"d770303609f4c4028b2b1446cf810ac1","w":160,"h":600},{"key":"74623eb82832c7260317b236874c435f","w":160,"h":300},{"key":"aea01d34a2c5e0b8c07ee9c98a71a19a","w":468,"h":60}];
+  const UNITS = [
+    {key:'797c350931164b2af01d762860993be3',w:728,h:90},
+    {key:'008faa77f149997884b507f444cfb4cd',w:320,h:50},
+    {key:'d770303609f4c4028b2b1446cf810ac1',w:160,h:600},
+    {key:'74623eb82832c7260317b236874c435f',w:160,h:300},
+    {key:'aea01d34a2c5e0b8c07ee9c98a71a19a',w:468,h:60}
+  ];
+
   const wall = document.getElementById('wall');
   const sentinel = document.getElementById('sentinel');
 
   const INITIAL = 100;
-  const BATCH = 10;
+  const BATCH = 20;
   const MAX_TOTAL = 1000;
-  let maxConcurrent = 1;
-  let maxLive = Infinity;
 
   let created = 0;
   let activeLoads = 0;
+  let maxConcurrent = 2;
   const pending = [];
   const state = new Map();
 
-  function metrics(){
+  function gridMetrics(){
     const cs = getComputedStyle(wall);
-    const gap = parseFloat(cs.gap) || 0;
-    const row = parseFloat(cs.gridAutoRows) || 2;
     const cols = Math.max(1, cs.gridTemplateColumns.split(' ').length);
-    const inner = wall.clientWidth - gap * Math.max(0, cols - 1);
-    return {gap,row,cols,col:inner/cols};
+    const gap = parseFloat(cs.gap) || 0;
+    const usable = wall.clientWidth - gap * Math.max(0, cols - 1);
+    return {cols,gap,colWidth:usable / cols};
   }
 
-  function pack(slot){
-    const m = metrics();
-    const w = parseFloat(slot.dataset.w) || m.col;
-    const h = parseFloat(slot.dataset.h) || m.row;
-    const colSpan = Math.max(1, Math.min(m.cols, Math.ceil((w + m.gap)/(m.col + m.gap))));
-    const rowSpan = Math.max(1, Math.ceil((h + m.gap)/(m.row + m.gap)));
-    slot.style.gridColumnEnd = 'span ' + colSpan;
-    slot.style.gridRowEnd = 'span ' + rowSpan;
+  function densityFactor(){
+    const w = innerWidth;
+    if (w <= 380) return 0.26;
+    if (w <= 480) return 0.30;
+    if (w <= 700) return 0.38;
+    if (w <= 1000) return 0.52;
+    return 0.70;
   }
 
-  function distanceToViewport(slot){
-    const r = slot.getBoundingClientRect();
-    if (r.bottom < 0) return -r.bottom;
-    if (r.top > innerHeight) return r.top - innerHeight;
-    return 0;
-  }
+  function layoutSlot(slot){
+    const gm = gridMetrics();
+    const ow = Number(slot.dataset.ow);
+    const oh = Number(slot.dataset.oh);
+    const aspect = ow / oh;
+    const density = densityFactor();
 
-  function updateLiveCap(){
-    let visible = 0;
-    for (const slot of state.keys()) {
-      const r = slot.getBoundingClientRect();
-      if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) visible++;
+    let targetW;
+
+    if (aspect >= 5) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.48 : 0.62);
+    } else if (aspect >= 2.5) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.42 : 0.52);
+    } else if (aspect >= 1) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.34 : 0.40);
+    } else if (aspect >= 0.45) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.24 : 0.28);
+    } else {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.19 : 0.23);
     }
-    maxLive = Infinity;
-    maxConcurrent = 1;
-  }
 
-  function evictFar(){
-    // Intentionally keep all loaded ads mounted.
+    targetW *= density / 0.30;
+    targetW = Math.max(gm.colWidth, Math.min(targetW, innerWidth));
+
+    const scale = Math.min(1, targetW / ow);
+    const visualW = ow * scale;
+    const visualH = oh * scale;
+
+    const colSpan = Math.max(1, Math.min(gm.cols, Math.ceil((visualW + gm.gap) / (gm.colWidth + gm.gap))));
+
+    slot.style.gridColumn = 'span ' + colSpan;
+    slot.style.height = Math.max(28, Math.round(visualH)) + 'px';
+    slot.dataset.scale = scale.toFixed(4);
+
+    const wrap = slot.querySelector('.scaled');
+    if (wrap) wrap.style.transform = 'scale(' + scale + ')';
   }
 
   function finish(slot){
     activeLoads = Math.max(0, activeLoads - 1);
     state.set(slot,{live:true,loading:false});
-    evictFar();
-    while (pending.length && activeLoads < maxConcurrent) {
-      const next = pending.shift();
-      if (next) mount(next);
-    }
+    pump();
   }
 
   function mount(slot){
-    const st = state.get(slot) || {live:false,loading:false};
-    if (st.live || st.loading) return;
+    const st = state.get(slot);
+    if (!st || st.live || st.loading) return;
+
     if (activeLoads >= maxConcurrent) {
       if (!pending.includes(slot)) pending.push(slot);
       return;
@@ -129,6 +162,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     wrap.className = 'scaled';
     wrap.style.width = ow + 'px';
     wrap.style.height = oh + 'px';
+    wrap.style.transform = 'scale(' + (slot.dataset.scale || 1) + ')';
 
     const cfg = document.createElement('script');
     cfg.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
@@ -146,13 +180,13 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 
     src.onload = () => {
       let checks = 0;
-      const waitForRender = setInterval(() => {
+      const timer = setInterval(() => {
         checks++;
         if (mountPoint.querySelector('iframe') || checks >= 20) {
-          clearInterval(waitForRender);
+          clearInterval(timer);
           complete();
         }
-      }, 100);
+      },100);
     };
     src.onerror = complete;
 
@@ -161,35 +195,22 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     setTimeout(complete,5000);
   }
 
-  const io = new IntersectionObserver(entries => {
-    updateLiveCap();
-    entries.filter(e => e.isIntersecting)
-      .sort((a,b) => distanceToViewport(a.target) - distanceToViewport(b.target))
-      .forEach(e => mount(e.target));
-    pumpVisible();
-    evictFar();
-  }, {rootMargin:'0px',threshold:0.01});
-
-  function pumpVisible(){
-    updateLiveCap();
-    const visibleSlots = [...state.keys()]
-      .filter(slot => {
-        const r = slot.getBoundingClientRect();
-        return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
-      })
-      .sort((a,b) => distanceToViewport(a) - distanceToViewport(b));
-
-    for (const slot of visibleSlots) {
-      if (!pending.includes(slot)) {
-        const st = state.get(slot);
-        if (!st?.live && !st?.loading) pending.push(slot);
-      }
-    }
+  function pump(){
     while (pending.length && activeLoads < maxConcurrent) {
       const next = pending.shift();
       if (next) mount(next);
     }
   }
+
+  const io = new IntersectionObserver(entries => {
+    entries
+      .filter(e => e.isIntersecting)
+      .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      .forEach(e => {
+        if (!pending.includes(e.target)) pending.push(e.target);
+      });
+    pump();
+  }, {rootMargin:'900px 0px',threshold:0.01});
 
   function makeSlot(index){
     const u = UNITS[index % UNITS.length];
@@ -198,12 +219,10 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     slot.dataset.key = u.key;
     slot.dataset.ow = u.w;
     slot.dataset.oh = u.h;
-    slot.dataset.w = Math.max(40,u.w);
-    slot.dataset.h = Math.max(24,u.h);
     slot.innerHTML = '<div class="mount"></div>';
     wall.appendChild(slot);
     state.set(slot,{live:false,loading:false});
-    pack(slot);
+    layoutSlot(slot);
     io.observe(slot);
   }
 
@@ -214,43 +233,20 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 
   appendBatch(INITIAL);
 
-  function tailIsFilled(){
-    const all = [...state.keys()];
-    if (!all.length) return false;
-    const tail = all.slice(-Math.min(BATCH, all.length));
-    return tail.every(slot => {
-      const st = state.get(slot);
-      return !!st && st.live === true && st.loading === false;
-    });
-  }
-
   const moreObserver = new IntersectionObserver(entries => {
-    if (!entries.some(e => e.isIntersecting) || created >= MAX_TOTAL) return;
-    if (tailIsFilled()) appendBatch(BATCH);
-  }, {rootMargin:'500px 0px'});
+    if (entries.some(e => e.isIntersecting) && created < MAX_TOTAL) {
+      appendBatch(BATCH);
+    }
+  }, {rootMargin:'1200px 0px'});
   moreObserver.observe(sentinel);
 
-  const fillWatcher = new MutationObserver(() => {
-    if (created >= MAX_TOTAL) return;
-    const r = sentinel.getBoundingClientRect();
-    if (r.top < innerHeight + 500 && tailIsFilled()) appendBatch(BATCH);
-  });
-  fillWatcher.observe(wall,{subtree:true,childList:true});
-
+  let resizeTimer;
   window.addEventListener('resize',() => {
-    document.querySelectorAll('.slot').forEach(pack);
-    updateLiveCap();
-    pumpVisible();
-    evictFar();
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      document.querySelectorAll('.slot').forEach(layoutSlot);
+    },80);
   }, {passive:true});
-
-  window.addEventListener('scroll',() => {
-    updateLiveCap();
-    pumpVisible();
-    evictFar();
-  }, {passive:true});
-
-  requestAnimationFrame(pumpVisible);
 })();
 </script>
 

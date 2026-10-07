@@ -29,8 +29,6 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   overflow:hidden;
   background:#fff;
   contain:layout paint style;
-  content-visibility:auto;
-  contain-intrinsic-size:20px 20px;
 }
 .mount{
   width:100%;
@@ -56,10 +54,12 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 <script>
 (() => {
   const wall = document.getElementById('wall');
-  const queue = [];
-  let active = 0;
-  const MAX_CONCURRENT = 6;
-  const mounted = new WeakSet();
+  const slots = [...document.querySelectorAll('.slot')];
+  const state = new Map();
+  let activeLoads = 0;
+  const MAX_CONCURRENT = 3;
+  const MAX_LIVE = 24;
+  const pending = [];
 
   function metrics(){
     const cs = getComputedStyle(wall);
@@ -80,72 +80,98 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     slot.style.gridRowEnd = 'span ' + rowSpan;
   }
 
-  function makeAd(slot){
-    if (mounted.has(slot)) return Promise.resolve();
-    mounted.add(slot);
-
-    return new Promise(resolve => {
-      const mount = slot.querySelector('.mount');
-      const ow = Number(slot.dataset.ow);
-      const oh = Number(slot.dataset.oh);
-      const key = slot.dataset.key;
-
-      const wrap = document.createElement('div');
-      wrap.className = 'scaled';
-      wrap.style.width = ow + 'px';
-      wrap.style.height = oh + 'px';
-
-      const cfg = document.createElement('script');
-      cfg.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
-
-      const src = document.createElement('script');
-      src.src = 'https://biomanos.org/22/' + key;
-      src.async = true;
-      src.onload = resolve;
-      src.onerror = resolve;
-
-      wrap.append(cfg, src);
-      mount.appendChild(wrap);
-
-      setTimeout(resolve, 4000);
-    });
+  function liveCount(){
+    let n = 0;
+    for (const s of state.values()) if (s.live) n++;
+    return n;
   }
 
-  function pump(){
-    while (active < MAX_CONCURRENT && queue.length) {
-      const slot = queue.shift();
-      active++;
-      makeAd(slot).finally(() => {
-        active--;
-        pump();
-      });
+  function distanceToViewport(slot){
+    const r = slot.getBoundingClientRect();
+    if (r.bottom < 0) return -r.bottom;
+    if (r.top > innerHeight) return r.top - innerHeight;
+    return 0;
+  }
+
+  function evictFar(){
+    const live = slots.filter(s => state.get(s)?.live);
+    live.sort((a,b) => distanceToViewport(b) - distanceToViewport(a));
+    while (live.length > MAX_LIVE) {
+      const slot = live.shift();
+      const st = state.get(slot);
+      if (!st || st.loading) continue;
+      slot.querySelector('.mount').replaceChildren();
+      state.set(slot,{live:false,loading:false});
     }
   }
 
-  function enqueue(slot){
-    if (mounted.has(slot) || queue.includes(slot)) return;
-    queue.push(slot);
-    pump();
+  function mount(slot){
+    const st = state.get(slot) || {live:false,loading:false};
+    if (st.live || st.loading) return;
+    if (activeLoads >= MAX_CONCURRENT) {
+      if (!pending.includes(slot)) pending.push(slot);
+      return;
+    }
+
+    activeLoads++;
+    state.set(slot,{live:false,loading:true});
+
+    const mount = slot.querySelector('.mount');
+    mount.replaceChildren();
+
+    const ow = Number(slot.dataset.ow);
+    const oh = Number(slot.dataset.oh);
+    const key = slot.dataset.key;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'scaled';
+    wrap.style.width = ow + 'px';
+    wrap.style.height = oh + 'px';
+
+    const cfg = document.createElement('script');
+    cfg.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
+
+    const src = document.createElement('script');
+    src.src = 'https://biomanos.org/22/' + key;
+    src.async = true;
+
+    const finish = () => {
+      activeLoads = Math.max(0, activeLoads - 1);
+      state.set(slot,{live:true,loading:false});
+      evictFar();
+      const next = pending.shift();
+      if (next) mount(next);
+    };
+
+    src.onload = finish;
+    src.onerror = finish;
+    wrap.append(cfg, src);
+    mount.appendChild(wrap);
+    setTimeout(() => {
+      const cur = state.get(slot);
+      if (cur?.loading) finish();
+    }, 5000);
   }
 
-  document.querySelectorAll('.slot').forEach(pack);
+  slots.forEach(slot => {
+    pack(slot);
+    state.set(slot,{live:false,loading:false});
+  });
 
   const io = new IntersectionObserver(entries => {
-    for (const e of entries) {
-      if (e.isIntersecting) enqueue(e.target);
-    }
-  }, {rootMargin:'800px 0px 800px 0px', threshold:0.01});
+    entries
+      .filter(e => e.isIntersecting)
+      .sort((a,b) => distanceToViewport(a.target) - distanceToViewport(b.target))
+      .forEach(e => mount(e.target));
+    evictFar();
+  }, {rootMargin:'250px 0px 250px 0px', threshold:0.01});
 
-  document.querySelectorAll('.slot').forEach(slot => io.observe(slot));
+  slots.forEach(slot => io.observe(slot));
 
   window.addEventListener('resize', () => {
-    document.querySelectorAll('.slot').forEach(pack);
+    slots.forEach(pack);
+    evictFar();
   }, {passive:true});
-
-  // Warm-start a small number so the first screen doesn't feel empty.
-  document.querySelectorAll('.slot').forEach((slot, i) => {
-    if (i < 24) enqueue(slot);
-  });
 })();
 </script>
 

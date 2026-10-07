@@ -8,17 +8,27 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#fff}
 body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
-#wall{position:relative;width:100%;background:#fff}
+.wall{
+  --gap:1px;
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));
+  grid-auto-flow:dense;
+  gap:var(--gap);
+  padding:var(--gap);
+  align-items:start;
+}
 .slot{
-  position:absolute;
-  overflow:hidden;
-  background:#fff;
+  min-width:0;
+  min-height:0;
   display:flex;
   align-items:center;
   justify-content:center;
+  overflow:hidden;
+  background:#fff;
+  contain:layout paint style;
 }
 .mount{
-  position:relative;
   width:100%;
   height:100%;
   display:flex;
@@ -27,17 +37,22 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   overflow:hidden;
 }
 .scaled{
-  position:absolute;
-  left:50%;
-  top:50%;
+  flex:0 0 auto;
   transform-origin:center center;
 }
 .slot iframe{display:block!important;border:0!important;max-width:none!important}
-#sentinel{height:2px;width:100%}
+#sentinel{height:1px;width:100%}
+
+@media(max-width:700px){
+  .wall{--gap:0px;grid-template-columns:repeat(16,minmax(0,1fr))}
+}
+@media(max-width:420px){
+  .wall{grid-template-columns:repeat(20,minmax(0,1fr))}
+}
 </style>
 </head>
 <body>
-<main id="wall"></main>
+<main class="wall" id="wall"></main>
 <div id="sentinel"></div>
 
 <script>
@@ -59,85 +74,63 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 
   let created = 0;
   let activeLoads = 0;
+  let maxConcurrent = 2;
   const pending = [];
   const state = new Map();
 
-  function config(){
-    const vw = Math.max(320, window.innerWidth);
-    if (vw <= 420) return {cols:4,gap:1};
-    if (vw <= 700) return {cols:5,gap:1};
-    if (vw <= 1000) return {cols:6,gap:2};
-    return {cols:8,gap:3};
+  function gridMetrics(){
+    const cs = getComputedStyle(wall);
+    const cols = Math.max(1, cs.gridTemplateColumns.split(' ').length);
+    const gap = parseFloat(cs.gap) || 0;
+    const usable = wall.clientWidth - gap * Math.max(0, cols - 1);
+    return {cols,gap,colWidth:usable / cols};
   }
 
-  function spanFor(u, cols){
-    const a = u.w / u.h;
-    let s;
-    if (a >= 5) s = Math.min(cols, 4);
-    else if (a >= 2.2) s = Math.min(cols, 3);
-    else if (a >= 0.7) s = Math.min(cols, 2);
-    else s = 1;
-
-    if (window.innerWidth <= 420) {
-      if (a >= 5) s = 4;
-      else if (a >= 2.2) s = 3;
-      else if (a >= 0.7) s = 2;
-      else s = 1;
-    }
-    return Math.max(1, Math.min(cols, s));
+  function densityFactor(){
+    const w = innerWidth;
+    if (w <= 380) return 0.26;
+    if (w <= 480) return 0.30;
+    if (w <= 700) return 0.38;
+    if (w <= 1000) return 0.52;
+    return 0.70;
   }
 
-  function relayout(){
-    const {cols,gap} = config();
-    const totalW = wall.clientWidth;
-    const colW = (totalW - gap * (cols - 1)) / cols;
-    const heights = Array(cols).fill(0);
+  function layoutSlot(slot){
+    const gm = gridMetrics();
+    const ow = Number(slot.dataset.ow);
+    const oh = Number(slot.dataset.oh);
+    const aspect = ow / oh;
+    const density = densityFactor();
 
-    const slots = [...wall.querySelectorAll('.slot')];
+    let targetW;
 
-    for (const slot of slots){
-      const u = {
-        w:Number(slot.dataset.ow),
-        h:Number(slot.dataset.oh)
-      };
-      const span = spanFor(u, cols);
-      const boxW = colW * span + gap * (span - 1);
-      const scale = Math.min(1, boxW / u.w);
-      const boxH = Math.max(26, Math.round(u.h * scale));
-
-      let bestCol = 0;
-      let bestY = Infinity;
-
-      for (let start = 0; start <= cols - span; start++){
-        const y = Math.max(...heights.slice(start,start+span));
-        if (y < bestY){
-          bestY = y;
-          bestCol = start;
-        }
-      }
-
-      const x = bestCol * (colW + gap);
-      const y = bestY;
-
-      slot.style.left = Math.round(x) + 'px';
-      slot.style.top = Math.round(y) + 'px';
-      slot.style.width = Math.round(boxW) + 'px';
-      slot.style.height = boxH + 'px';
-      slot.dataset.scale = scale.toFixed(4);
-
-      const wrap = slot.querySelector('.scaled');
-      if (wrap){
-        wrap.style.width = u.w + 'px';
-        wrap.style.height = u.h + 'px';
-        wrap.style.transform = 'translate(-50%,-50%) scale(' + scale + ')';
-      }
-
-      const newH = y + boxH + gap;
-      for (let c = bestCol; c < bestCol + span; c++) heights[c] = newH;
+    if (aspect >= 5) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.48 : 0.62);
+    } else if (aspect >= 2.5) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.42 : 0.52);
+    } else if (aspect >= 1) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.34 : 0.40);
+    } else if (aspect >= 0.45) {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.24 : 0.28);
+    } else {
+      targetW = innerWidth * (innerWidth <= 480 ? 0.19 : 0.23);
     }
 
-    const maxH = Math.max(0,...heights);
-    wall.style.height = Math.ceil(maxH) + 'px';
+    targetW *= density / 0.30;
+    targetW = Math.max(gm.colWidth, Math.min(targetW, innerWidth));
+
+    const scale = Math.min(1, targetW / ow);
+    const visualW = ow * scale;
+    const visualH = oh * scale;
+
+    const colSpan = Math.max(1, Math.min(gm.cols, Math.ceil((visualW + gm.gap) / (gm.colWidth + gm.gap))));
+
+    slot.style.gridColumn = 'span ' + colSpan;
+    slot.style.height = Math.max(28, Math.round(visualH)) + 'px';
+    slot.dataset.scale = scale.toFixed(4);
+
+    const wrap = slot.querySelector('.scaled');
+    if (wrap) wrap.style.transform = 'scale(' + scale + ')';
   }
 
   function finish(slot){
@@ -150,8 +143,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     const st = state.get(slot);
     if (!st || st.live || st.loading) return;
 
-    const maxConcurrent = window.innerWidth <= 700 ? 2 : 3;
-    if (activeLoads >= maxConcurrent){
+    if (activeLoads >= maxConcurrent) {
       if (!pending.includes(slot)) pending.push(slot);
       return;
     }
@@ -165,13 +157,12 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     const ow = Number(slot.dataset.ow);
     const oh = Number(slot.dataset.oh);
     const key = slot.dataset.key;
-    const scale = Number(slot.dataset.scale || 1);
 
     const wrap = document.createElement('div');
     wrap.className = 'scaled';
     wrap.style.width = ow + 'px';
     wrap.style.height = oh + 'px';
-    wrap.style.transform = 'translate(-50%,-50%) scale(' + scale + ')';
+    wrap.style.transform = 'scale(' + (slot.dataset.scale || 1) + ')';
 
     const cfg = document.createElement('script');
     cfg.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
@@ -191,7 +182,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
       let checks = 0;
       const timer = setInterval(() => {
         checks++;
-        if (mountPoint.querySelector('iframe') || checks >= 20){
+        if (mountPoint.querySelector('iframe') || checks >= 20) {
           clearInterval(timer);
           complete();
         }
@@ -205,8 +196,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   }
 
   function pump(){
-    const maxConcurrent = window.innerWidth <= 700 ? 2 : 3;
-    while (pending.length && activeLoads < maxConcurrent){
+    while (pending.length && activeLoads < maxConcurrent) {
       const next = pending.shift();
       if (next) mount(next);
     }
@@ -220,7 +210,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
         if (!pending.includes(e.target)) pending.push(e.target);
       });
     pump();
-  }, {rootMargin:'1000px 0px',threshold:0.01});
+  }, {rootMargin:'900px 0px',threshold:0.01});
 
   function makeSlot(index){
     const u = UNITS[index % UNITS.length];
@@ -232,28 +222,30 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     slot.innerHTML = '<div class="mount"></div>';
     wall.appendChild(slot);
     state.set(slot,{live:false,loading:false});
+    layoutSlot(slot);
     io.observe(slot);
   }
 
   function appendBatch(count){
     const end = Math.min(MAX_TOTAL, created + count);
     for (; created < end; created++) makeSlot(created);
-    relayout();
   }
 
   appendBatch(INITIAL);
 
   const moreObserver = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting) && created < MAX_TOTAL){
+    if (entries.some(e => e.isIntersecting) && created < MAX_TOTAL) {
       appendBatch(BATCH);
     }
-  }, {rootMargin:'1400px 0px'});
+  }, {rootMargin:'1200px 0px'});
   moreObserver.observe(sentinel);
 
   let resizeTimer;
   window.addEventListener('resize',() => {
     clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(relayout,100);
+    resizeTimer = setTimeout(() => {
+      document.querySelectorAll('.slot').forEach(layoutSlot);
+    },80);
   }, {passive:true});
 })();
 </script>

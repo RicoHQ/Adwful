@@ -5,229 +5,126 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Adwful</title>
 <style>
-  *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:#000;color:#fff}
-  body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
-
-  .shell{
-    width:100%;
-    max-width:1600px;
-    margin:0 auto;
-    padding:4px;
-  }
-
-  .wall{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-    gap:4px;
-    align-items:start;
-  }
-
-  .slot{
-    position:relative;
-    min-width:0;
-    background:#050505;
-    border:1px solid #111;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-
-  .slot::before{
-    content:"";
-    position:absolute;
-    inset:0;
-    background:linear-gradient(135deg,#050505,#0a0a0a);
-    pointer-events:none;
-  }
-
-  .mount{
-    position:relative;
-    z-index:1;
-    width:100%;
-    height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    overflow:hidden;
-  }
-
-  .scaled{
-    flex:0 0 auto;
-    transform-origin:center center;
-  }
-
-  .slot iframe{
-    display:block!important;
-    border:0!important;
-    max-width:none!important;
-  }
-
-  @media (max-width:700px){
-    .shell{padding:2px}
-    .wall{
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:2px;
-    }
-  }
-
-  @media (max-width:360px){
-    .wall{
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:1px;
-    }
-  }
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#000;color:#fff}
+body{font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+.wall{
+  width:100%;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:4px;
+  padding:4px;
+  align-items:start;
+}
+.slot{
+  min-width:0;
+  background:#050505;
+  border:1px solid #111;
+  overflow:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:80px;
+}
+.slot > div{max-width:100%}
+.slot iframe{display:block;border:0;max-width:100%}
+.native{min-height:180px}
+@media(max-width:700px){
+  .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;padding:2px}
+}
+@media(max-width:380px){
+  .wall{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
-  <div class="shell">
-    <main id="wall" class="wall"></main>
+<main class="wall">
+
+<section class="slot native">
+  <div>
+    <script async="async" data-cfasync="false" src="https://biomanos.org/21/55bd8aeabd90917c2c56507883ab80df"></script>
+    <div id="container-55bd8aeabd90917c2c56507883ab80df"></div>
   </div>
+</section>
 
-<script>
-(() => {
-  const UNITS = [
-    {key:'797c350931164b2af01d762860993be3',w:728,h:90},
-    {key:'008faa77f149997884b507f444cfb4cd',w:320,h:50},
-    {key:'d770303609f4c4028b2b1446cf810ac1',w:160,h:600},
-    {key:'74623eb82832c7260317b236874c435f',w:160,h:300},
-    {key:'aea01d34a2c5e0b8c07ee9c98a71a19a',w:468,h:60}
-  ];
+<section class="slot">
+  <div>
+    <script>
+      atOptions = {
+        'key' : '797c350931164b2af01d762860993be3',
+        'format' : 'iframe',
+        'height' : 90,
+        'width' : 728,
+        'params' : {}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
 
-  const wall = document.getElementById('wall');
-  const TOTAL = 100;
-  const queue = [];
-  const state = new WeakMap();
-  let running = 0;
+<section class="slot">
+  <div>
+    <script>
+      atOptions = {
+        'key' : '008faa77f149997884b507f444cfb4cd',
+        'format' : 'iframe',
+        'height' : 50,
+        'width' : 320,
+        'params' : {}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
 
-  function concurrency(){
-    return innerWidth <= 700 ? 2 : 4;
-  }
+<section class="slot">
+  <div>
+    <script>
+      atOptions = {
+        'key' : 'd770303609f4c4028b2b1446cf810ac1',
+        'format' : 'iframe',
+        'height' : 600,
+        'width' : 160,
+        'params' : {}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
 
-  function sizeSlot(slot){
-    const ow = Number(slot.dataset.ow);
-    const oh = Number(slot.dataset.oh);
-    const width = Math.max(1, slot.clientWidth);
-    const scale = Math.min(1, width / ow);
-    const visualH = Math.max(42, Math.round(oh * scale));
+<section class="slot">
+  <div>
+    <script>
+      atOptions = {
+        'key' : '74623eb82832c7260317b236874c435f',
+        'format' : 'iframe',
+        'height' : 300,
+        'width' : 160,
+        'params' : {}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
 
-    slot.style.height = visualH + 'px';
-    slot.dataset.scale = String(scale);
+<section class="slot">
+  <div>
+    <script>
+      atOptions = {
+        'key' : 'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format' : 'iframe',
+        'height' : 60,
+        'width' : 468,
+        'params' : {}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
 
-    const wrap = slot.querySelector('.scaled');
-    if(wrap){
-      wrap.style.width = ow + 'px';
-      wrap.style.height = oh + 'px';
-      wrap.style.transform = 'scale(' + scale + ')';
-    }
-  }
+</main>
 
-  function done(slot){
-    const s = state.get(slot) || {};
-    state.set(slot,{...s,loaded:true,loading:false});
-    running = Math.max(0,running-1);
-    pump();
-  }
-
-  function load(slot){
-    const s = state.get(slot) || {};
-    if(s.loaded || s.loading) return;
-
-    if(running >= concurrency()){
-      if(!queue.includes(slot)) queue.push(slot);
-      return;
-    }
-
-    running++;
-    state.set(slot,{loaded:false,loading:true});
-
-    const key = slot.dataset.key;
-    const ow = Number(slot.dataset.ow);
-    const oh = Number(slot.dataset.oh);
-    const mount = slot.querySelector('.mount');
-
-    const wrap = document.createElement('div');
-    wrap.className = 'scaled';
-    wrap.style.width = ow + 'px';
-    wrap.style.height = oh + 'px';
-    wrap.style.transform = 'scale(' + (slot.dataset.scale || 1) + ')';
-
-    const config = document.createElement('script');
-    config.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
-
-    const source = document.createElement('script');
-    source.src = 'https://biomanos.org/22/' + key;
-    source.async = true;
-
-    let finished = false;
-    const finish = () => {
-      if(finished) return;
-      finished = true;
-      done(slot);
-    };
-
-    source.onload = () => {
-      let tries = 0;
-      const check = setInterval(() => {
-        tries++;
-        if(mount.querySelector('iframe') || tries >= 25){
-          clearInterval(check);
-          finish();
-        }
-      },100);
-    };
-
-    source.onerror = finish;
-    setTimeout(finish,5000);
-
-    wrap.append(config,source);
-    mount.replaceChildren(wrap);
-  }
-
-  function pump(){
-    while(queue.length && running < concurrency()){
-      const next = queue.shift();
-      if(next) load(next);
-    }
-  }
-
-  const observer = new IntersectionObserver(entries => {
-    entries
-      .filter(e => e.isIntersecting)
-      .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top)
-      .forEach(e => {
-        if(!queue.includes(e.target)) queue.push(e.target);
-      });
-    pump();
-  },{rootMargin:'1000px 0px',threshold:0.01});
-
-  for(let i=0;i<TOTAL;i++){
-    const u = UNITS[i % UNITS.length];
-    const slot = document.createElement('section');
-    slot.className = 'slot';
-    slot.dataset.key = u.key;
-    slot.dataset.ow = u.w;
-    slot.dataset.oh = u.h;
-    slot.innerHTML = '<div class="mount"></div>';
-    wall.appendChild(slot);
-    state.set(slot,{loaded:false,loading:false});
-    requestAnimationFrame(() => sizeSlot(slot));
-    observer.observe(slot);
-  }
-
-  let resizeTimer;
-  addEventListener('resize',() => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(() => {
-      document.querySelectorAll('.slot').forEach(sizeSlot);
-      pump();
-    },100);
-  },{passive:true});
-})();
-</script>
-
-<script defer data-cfasync="false" src="https://benchform.org/1/bfe86e73a31386d4d08fe52554d3ddb4"></script>
-<script defer data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"></script>
+<script data-cfasync="false" src="https://benchform.org/1/bfe86e73a31386d4d08fe52554d3ddb4"></script>
+<script data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"></script>
 </body>
 </html>

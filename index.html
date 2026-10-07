@@ -47,7 +47,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   const sentinel = document.getElementById('sentinel');
 
   const INITIAL = 100;
-  const BATCH = 50;
+  const BATCH = 10;
   const MAX_TOTAL = 1000;
   let maxConcurrent = 1;
   let maxLive = 12;
@@ -207,12 +207,31 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 
   appendBatch(INITIAL);
 
+  function tailIsFilled(){
+    const all = [...state.keys()];
+    if (!all.length) return false;
+    const tail = all.slice(-Math.min(BATCH, all.length));
+    return tail.every(slot => {
+      const st = state.get(slot);
+      if (!st?.live) return false;
+      const mount = slot.querySelector('.mount');
+      const frame = mount?.querySelector('iframe');
+      return !!frame || (mount && mount.childElementCount > 0);
+    });
+  }
+
   const moreObserver = new IntersectionObserver(entries => {
-    if (entries.some(e => e.isIntersecting) && created < MAX_TOTAL) {
-      appendBatch(BATCH);
-    }
-  }, {rootMargin:'900px 0px'});
+    if (!entries.some(e => e.isIntersecting) || created >= MAX_TOTAL) return;
+    if (tailIsFilled()) appendBatch(BATCH);
+  }, {rootMargin:'500px 0px'});
   moreObserver.observe(sentinel);
+
+  const fillWatcher = new MutationObserver(() => {
+    if (created >= MAX_TOTAL) return;
+    const r = sentinel.getBoundingClientRect();
+    if (r.top < innerHeight + 500 && tailIsFilled()) appendBatch(BATCH);
+  });
+  fillWatcher.observe(wall,{subtree:true,childList:true});
 
   window.addEventListener('resize',() => {
     document.querySelectorAll('.slot').forEach(pack);

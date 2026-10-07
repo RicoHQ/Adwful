@@ -49,7 +49,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   const INITIAL = 100;
   const BATCH = 50;
   const MAX_TOTAL = 1000;
-  const MAX_CONCURRENT = 1;
+  let maxConcurrent = 1;
   let maxLive = 12;
 
   let created = 0;
@@ -90,6 +90,7 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
       if (r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth) visible++;
     }
     maxLive = Math.max(4, visible);
+    maxConcurrent = Math.max(1, visible);
   }
 
   function evictFar(){
@@ -111,14 +112,16 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
     activeLoads = Math.max(0, activeLoads - 1);
     state.set(slot,{live:true,loading:false});
     evictFar();
-    const next = pending.shift();
-    if (next) mount(next);
+    while (pending.length && activeLoads < maxConcurrent) {
+      const next = pending.shift();
+      if (next) mount(next);
+    }
   }
 
   function mount(slot){
     const st = state.get(slot) || {live:false,loading:false};
     if (st.live || st.loading) return;
-    if (activeLoads >= MAX_CONCURRENT) {
+    if (activeLoads >= maxConcurrent) {
       if (!pending.includes(slot)) pending.push(slot);
       return;
     }
@@ -161,11 +164,25 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   }
 
   const io = new IntersectionObserver(entries => {
+    updateLiveCap();
     entries.filter(e => e.isIntersecting)
       .sort((a,b) => distanceToViewport(a.target) - distanceToViewport(b.target))
       .forEach(e => mount(e.target));
+    pumpVisible();
     evictFar();
-  }, {rootMargin:'200px 0px 200px 0px',threshold:0.01});
+  }, {rootMargin:'0px',threshold:0.01});
+
+  function pumpVisible(){
+    updateLiveCap();
+    const visibleSlots = [...state.keys()]
+      .filter(slot => {
+        const r = slot.getBoundingClientRect();
+        return r.bottom > 0 && r.top < innerHeight && r.right > 0 && r.left < innerWidth;
+      })
+      .sort((a,b) => distanceToViewport(a) - distanceToViewport(b));
+
+    for (const slot of visibleSlots) mount(slot);
+  }
 
   function makeSlot(index){
     const u = UNITS[index % UNITS.length];
@@ -200,13 +217,17 @@ body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
   window.addEventListener('resize',() => {
     document.querySelectorAll('.slot').forEach(pack);
     updateLiveCap();
+    pumpVisible();
     evictFar();
   }, {passive:true});
 
   window.addEventListener('scroll',() => {
     updateLiveCap();
+    pumpVisible();
     evictFar();
   }, {passive:true});
+
+  requestAnimationFrame(pumpVisible);
 })();
 </script>
 

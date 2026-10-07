@@ -7,114 +7,202 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#fff}
-body{font-family:system-ui,Arial,sans-serif;overflow-x:hidden}
+body{overflow-x:hidden;font-family:system-ui,Arial,sans-serif}
 .wall{
+  width:100%;
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
-  gap:4px;
-  padding:4px;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:3px;
+  padding:3px;
   align-items:start;
 }
 .slot{
+  min-width:0;
+  min-height:0;
   display:flex;
   align-items:center;
   justify-content:center;
   overflow:hidden;
-  min-width:0;
   background:#fff;
+  contain:layout paint style;
 }
-.slot iframe{max-width:100%!important;border:0!important}
-.w728{min-height:90px}
-.w320{min-height:50px}
-.w160x600{min-height:600px}
-.w160x300{min-height:300px}
-.w468{min-height:60px}
-.native{min-height:180px}
-@media(max-width:500px){
+.mount{
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+.scaled{
+  flex:0 0 auto;
+  transform-origin:center center;
+}
+.slot iframe{display:block!important;border:0!important;max-width:none!important}
+#sentinel{height:1px;width:100%}
+@media(max-width:700px){
   .wall{grid-template-columns:repeat(2,minmax(0,1fr));gap:2px;padding:2px}
-  .w160x600{min-height:600px}
-  .w160x300{min-height:300px}
 }
 </style>
 </head>
 <body>
+<main class="wall" id="wall"></main>
+<div id="sentinel"></div>
 
-<main class="wall">
-
-<section class="slot native">
-<script async="async" data-cfasync="false" src="https://biomanos.org/21/55bd8aeabd90917c2c56507883ab80df"></script>
-<div id="container-55bd8aeabd90917c2c56507883ab80df"></div>
-</section>
-
-<section class="slot w728">
 <script>
-  atOptions = {
-    'key' : '797c350931164b2af01d762860993be3',
-    'format' : 'iframe',
-    'height' : 90,
-    'width' : 728,
-    'params' : {}
-  };
+(() => {
+  const UNITS = [
+    {key:'797c350931164b2af01d762860993be3',w:728,h:90},
+    {key:'008faa77f149997884b507f444cfb4cd',w:320,h:50},
+    {key:'d770303609f4c4028b2b1446cf810ac1',w:160,h:600},
+    {key:'74623eb82832c7260317b236874c435f',w:160,h:300},
+    {key:'aea01d34a2c5e0b8c07ee9c98a71a19a',w:468,h:60}
+  ];
+
+  const wall = document.getElementById('wall');
+  const sentinel = document.getElementById('sentinel');
+
+  const INITIAL = 100;
+  const BATCH = 20;
+  const MAX_TOTAL = 1000;
+
+  let created = 0;
+  let activeLoads = 0;
+  const pending = [];
+  const state = new Map();
+
+  function layoutSlot(slot){
+    const ow = Number(slot.dataset.ow);
+    const oh = Number(slot.dataset.oh);
+    const available = Math.max(1, slot.clientWidth || 180);
+    const scale = Math.min(1, available / ow);
+    slot.style.height = Math.max(34, Math.round(oh * scale)) + 'px';
+    slot.dataset.scale = scale.toFixed(4);
+
+    const wrap = slot.querySelector('.scaled');
+    if (wrap) wrap.style.transform = 'scale(' + scale + ')';
+  }
+
+  function finish(slot){
+    activeLoads = Math.max(0, activeLoads - 1);
+    state.set(slot,{live:true,loading:false});
+    pump();
+  }
+
+  function mount(slot){
+    const st = state.get(slot);
+    if (!st || st.live || st.loading) return;
+
+    const maxConcurrent = innerWidth <= 700 ? 2 : 3;
+    if (activeLoads >= maxConcurrent) {
+      if (!pending.includes(slot)) pending.push(slot);
+      return;
+    }
+
+    activeLoads++;
+    state.set(slot,{live:false,loading:true});
+
+    const mountPoint = slot.querySelector('.mount');
+    mountPoint.replaceChildren();
+
+    const ow = Number(slot.dataset.ow);
+    const oh = Number(slot.dataset.oh);
+    const key = slot.dataset.key;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'scaled';
+    wrap.style.width = ow + 'px';
+    wrap.style.height = oh + 'px';
+    wrap.style.transform = 'scale(' + (slot.dataset.scale || 1) + ')';
+
+    const cfg = document.createElement('script');
+    cfg.text = "atOptions={key:'" + key + "',format:'iframe',height:" + oh + ",width:" + ow + ",params:{}};";
+
+    const src = document.createElement('script');
+    src.src = 'https://biomanos.org/22/' + key;
+    src.async = true;
+
+    let done = false;
+    const complete = () => {
+      if (done) return;
+      done = true;
+      finish(slot);
+    };
+
+    src.onload = () => {
+      let checks = 0;
+      const timer = setInterval(() => {
+        checks++;
+        if (mountPoint.querySelector('iframe') || checks >= 20) {
+          clearInterval(timer);
+          complete();
+        }
+      },100);
+    };
+    src.onerror = complete;
+
+    wrap.append(cfg,src);
+    mountPoint.appendChild(wrap);
+    setTimeout(complete,5000);
+  }
+
+  function pump(){
+    const maxConcurrent = innerWidth <= 700 ? 2 : 3;
+    while (pending.length && activeLoads < maxConcurrent) {
+      const next = pending.shift();
+      if (next) mount(next);
+    }
+  }
+
+  const io = new IntersectionObserver(entries => {
+    entries
+      .filter(e => e.isIntersecting)
+      .sort((a,b) => a.boundingClientRect.top - b.boundingClientRect.top)
+      .forEach(e => {
+        if (!pending.includes(e.target)) pending.push(e.target);
+      });
+    pump();
+  }, {rootMargin:'900px 0px',threshold:0.01});
+
+  function makeSlot(index){
+    const u = UNITS[index % UNITS.length];
+    const slot = document.createElement('section');
+    slot.className = 'slot';
+    slot.dataset.key = u.key;
+    slot.dataset.ow = u.w;
+    slot.dataset.oh = u.h;
+    slot.innerHTML = '<div class="mount"></div>';
+    wall.appendChild(slot);
+    state.set(slot,{live:false,loading:false});
+    requestAnimationFrame(() => layoutSlot(slot));
+    io.observe(slot);
+  }
+
+  function appendBatch(count){
+    const end = Math.min(MAX_TOTAL, created + count);
+    for (; created < end; created++) makeSlot(created);
+  }
+
+  appendBatch(INITIAL);
+
+  const moreObserver = new IntersectionObserver(entries => {
+    if (entries.some(e => e.isIntersecting) && created < MAX_TOTAL) {
+      appendBatch(BATCH);
+    }
+  }, {rootMargin:'1200px 0px'});
+  moreObserver.observe(sentinel);
+
+  let resizeTimer;
+  addEventListener('resize',() => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      document.querySelectorAll('.slot').forEach(layoutSlot);
+    },80);
+  },{passive:true});
+})();
 </script>
-<script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
-</section>
 
-<section class="slot w320">
-<script>
-  atOptions = {
-    'key' : '008faa77f149997884b507f444cfb4cd',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-</script>
-<script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
-</section>
-
-<section class="slot w160x600">
-<script>
-  atOptions = {
-    'key' : 'd770303609f4c4028b2b1446cf810ac1',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
-</section>
-
-<section class="slot w160x300">
-<script>
-  atOptions = {
-    'key' : '74623eb82832c7260317b236874c435f',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
-</section>
-
-<section class="slot w468">
-<script>
-  atOptions = {
-    'key' : 'aea01d34a2c5e0b8c07ee9c98a71a19a',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
-  };
-</script>
-<script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
-</section>
-
-</main>
-
-<script data-cfasync="false" src="https://benchform.org/1/bfe86e73a31386d4d08fe52554d3ddb4"></script>
-<script data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"></script>
-
+<script defer data-cfasync="false" src="https://benchform.org/1/bfe86e73a31386d4d08fe52554d3ddb4"></script>
+<script defer data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"></script>
 </body>
 </html>

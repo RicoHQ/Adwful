@@ -5,71 +5,152 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Adwful</title>
 <style>
-html,body{margin:0;min-height:100%;background:#fff}
-body{padding:8px;box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#fff}
+  body{overflow-x:hidden}
+  #wall{position:relative;width:100%;max-width:1800px;margin:0 auto}
+  .ad-tile{position:absolute;overflow:hidden;background:#fff}
+  .ad-tile iframe{display:block;border:0;transform-origin:top left}
+  #sentinel{height:1px}
+  #container-55bd8aeabd90917c2c56507883ab80df{max-width:100%;margin:0 auto}
+  .slot-page #wall,.slot-page #sentinel{display:none}
+  .slot-page body{overflow:hidden}
 </style>
 </head>
 <body>
-
 <script>
-  atOptions = {
-    'key' : 'aea01d34a2c5e0b8c07ee9c98a71a19a',
-    'format' : 'iframe',
-    'height' : 60,
-    'width' : 468,
-    'params' : {}
-  };
+  // Read the publisher-supplied ad sizes; each placement has its own iframe
+  // so its script cannot overwrite another placement's atOptions value.
+  const adSizes = [
+    {key:"aea01d34a2c5e0b8c07ee9c98a71a19a",width:468,height:60},
+    {key:"74623eb82832c7260317b236874c435f",width:160,height:300},
+    {key:"d770303609f4c4028b2b1446cf810ac1",width:160,height:600},
+    {key:"008faa77f149997884b507f444cfb4cd",width:320,height:50},
+    {key:"797c350931164b2af01d762860993be3",width:728,height:90}
+  ];
+  const slotText = new URLSearchParams(location.search).get("slot");
+  const slotIndex = slotText === null ? -1 : Number(slotText);
+  const slotMode = Number.isInteger(slotIndex) && slotIndex >= 0 && slotIndex < adSizes.length;
+  if (slotMode) {
+    document.documentElement.classList.add("slot-page");
+    const ad = adSizes[slotIndex];
+    window.atOptions = {
+      key:ad.key,format:"iframe",height:ad.height,width:ad.width,params:{}
+    };
+    // Parser-inserted script: preserves ad tags that use document.write().
+    document.write('<script data-cfasync="false" src="https://biomanos.org/22/'+ad.key+'"><\/script>');
+  } else {
+    // The popunder and native units are loaded only once, not per iframe.
+    document.write('<script data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"><\/script>');
+    document.write('<script async data-cfasync="false" src="https://biomanos.org/21/55bd8aeabd90917c2c56507883ab80df"><\/script>');
+    document.write('<div id="container-55bd8aeabd90917c2c56507883ab80df"></div>');
+  }
 </script>
-<script data-cfasync="false" src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
-
+<main id="wall"></main>
+<div id="sentinel" aria-hidden="true"></div>
 <script>
-  atOptions = {
-    'key' : '74623eb82832c7260317b236874c435f',
-    'format' : 'iframe',
-    'height' : 300,
-    'width' : 160,
-    'params' : {}
-  };
+if (!slotMode) {
+  const wall = document.getElementById("wall");
+  const sentinel = document.getElementById("sentinel");
+  const tiles = [];
+  // Cycle through all five sizes, with tall units mixed with small banners.
+  const order = [2,1,4,0,3,1,2,3,0,4];
+  let cursor = 0;
+  let scheduled = false;
+  let wallHeight = 0;
+  let layoutWidth = 0;
+
+  function findSpot(width,height,placed,areaWidth,gap) {
+    const xs = new Set([0]);
+    for (const item of placed) xs.add(item.x + item.w + gap);
+    let best = null;
+    for (const x of xs) {
+      if (x + width > areaWidth + 0.5) continue;
+      let y = 0;
+      for (let retry = 0; retry <= placed.length; retry++) {
+        let next = y;
+        for (const other of placed) {
+          if (x < other.x+other.w+gap && x+width+gap > other.x &&
+              y < other.y+other.h+gap && y+height+gap > other.y) {
+            next = Math.max(next, other.y+other.h+gap);
+          }
+        }
+        if (next === y) break;
+        y = next;
+      }
+      const score = y+height;
+      if (!best || score < best.score ||
+          (score === best.score && (y < best.y || (y === best.y && x < best.x)))) {
+        best = {x,y,score};
+      }
+    }
+    return best || {x:0,y:wallHeight,score:wallHeight+height};
+  }
+
+  function rearrange() {
+    const areaWidth = Math.max(1,wall.clientWidth);
+    const gap = areaWidth <= 320 ? 0 : 6;
+    const placed = [];
+    wallHeight = 0;
+    for (const tile of tiles) {
+      const type = adSizes[tile.index];
+      const scale = Math.min(1, areaWidth/type.width);
+      const w = type.width*scale;
+      const h = type.height*scale;
+      const p = findSpot(w,h,placed,areaWidth,gap);
+      tile.box.style.left = p.x+"px";
+      tile.box.style.top = p.y+"px";
+      tile.box.style.width = w+"px";
+      tile.box.style.height = h+"px";
+      tile.frame.style.transform = "scale("+scale+")";
+      placed.push({x:p.x,y:p.y,w,h});
+      wallHeight = Math.max(wallHeight,p.y+h);
+    }
+    wall.style.height = Math.ceil(wallHeight)+"px";
+    layoutWidth = areaWidth;
+  }
+
+  function addBatch() {
+    for (let n=0;n<10;n++) {
+      const index = order[cursor++ % order.length];
+      const ad = adSizes[index];
+      const box = document.createElement("div");
+      box.className = "ad-tile";
+      const frame = document.createElement("iframe");
+      frame.title = "Advertisement";
+      frame.loading = "lazy";
+      frame.referrerPolicy = "strict-origin-when-cross-origin";
+      frame.width = ad.width;
+      frame.height = ad.height;
+      frame.style.width = ad.width+"px";
+      frame.style.height = ad.height+"px";
+      const url = new URL(location.href);
+      url.searchParams.set("slot",String(index));
+      frame.src = url.href;
+      box.appendChild(frame);
+      wall.appendChild(box);
+      tiles.push({index,box,frame});
+    }
+    rearrange();
+  }
+
+  function appendOnDemand() {
+    if (scheduled) return;
+    scheduled = true;
+    requestAnimationFrame(() => {
+      scheduled = false;
+      addBatch();
+    });
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) appendOnDemand();
+  }, {rootMargin:"600px 0px"});
+  addBatch();
+  observer.observe(sentinel);
+  window.addEventListener("resize",() => {
+    if (wall.clientWidth !== layoutWidth) rearrange();
+  },{passive:true});
+}
 </script>
-<script data-cfasync="false" src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
-
-<script>
-  atOptions = {
-    'key' : 'd770303609f4c4028b2b1446cf810ac1',
-    'format' : 'iframe',
-    'height' : 600,
-    'width' : 160,
-    'params' : {}
-  };
-</script>
-<script data-cfasync="false" src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
-
-<script>
-  atOptions = {
-    'key' : '008faa77f149997884b507f444cfb4cd',
-    'format' : 'iframe',
-    'height' : 50,
-    'width' : 320,
-    'params' : {}
-  };
-</script>
-<script data-cfasync="false" src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
-
-<script>
-  atOptions = {
-    'key' : '797c350931164b2af01d762860993be3',
-    'format' : 'iframe',
-    'height' : 90,
-    'width' : 728,
-    'params' : {}
-  };
-</script>
-<script data-cfasync="false" src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
-
-<script data-cfasync="false" src="https://biomanos.org/14/11e239d255d66bf838f48f2fa61014d5"></script>
-
-<script async="async" data-cfasync="false" src="https://biomanos.org/21/55bd8aeabd90917c2c56507883ab80df"></script>
-<div id="container-55bd8aeabd90917c2c56507883ab80df"></div>
-
 </body>
 </html>

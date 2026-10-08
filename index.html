@@ -26,8 +26,8 @@ body{overflow-x:hidden}
 
   function srcdocFor(key,w,h){
     return '<!doctype html><html><head><meta name="viewport" content="width='+w+',initial-scale=1"><style>html,body{margin:0;padding:0;width:'+w+'px;height:'+h+'px;overflow:hidden;background:#000}iframe{border:0!important;display:block!important}</style></head><body>'
-      + '<script>atOptions={key:"'+key+'",format:"iframe",height:'+h+',width:'+w+',params:{}};<\\/script>'
-      + '<script src="https://biomanos.org/22/'+key+'"><\\/script>'
+      + '<script>atOptions={key:"'+key+'",format:"iframe",height:'+h+',width:'+w+',params:{}};<' + '/script>'
+      + '<script src="https://biomanos.org/22/'+key+'"><' + '/script>'
       + '</body></html>';
   }
 

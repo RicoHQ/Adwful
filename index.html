@@ -139,6 +139,11 @@ if (!slotMode) {
     requestAnimationFrame(() => {
       scheduled = false;
       addBatch();
+      // Continue filling until the next trigger is below the visible area.
+      // After that, new placements are added only when visitors scroll.
+      if (sentinel.getBoundingClientRect().top < innerHeight + 600) {
+        appendOnDemand();
+      }
     });
   }
 

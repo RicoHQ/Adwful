@@ -7,7 +7,7 @@
 <style>
   html,body{margin:0;min-height:100%;background:#fff}
   body{overflow-x:hidden}
-  #wall{position:relative;width:100%;max-width:1800px;margin:0 auto}
+  #wall{position:relative;width:100%;margin:0 auto}
   .ad-tile{position:absolute;overflow:hidden;background:#fff}
   .ad-tile iframe{display:block;border:0;transform-origin:top left}
   #sentinel{height:1px}
@@ -52,109 +52,172 @@ if (!slotMode) {
   const wall = document.getElementById("wall");
   const sentinel = document.getElementById("sentinel");
   const tiles = [];
-  // Cycle through all five sizes, with tall units mixed with small banners.
+  const occupied = [];
   const order = [2,1,4,0,3,1,2,3,0,4];
+  const PREFETCH = 650;
+  const CHUNK_SIZE = 8;
   let cursor = 0;
-  let scheduled = false;
   let wallHeight = 0;
   let layoutWidth = 0;
+  let scheduled = false;
+  let resizeScheduled = false;
 
-  function findSpot(width,height,placed,areaWidth,gap) {
+  function widthNow() {
+    return Math.max(1, wall.clientWidth);
+  }
+
+  function gapNow() {
+    return layoutWidth <= 320 ? 0 : 6;
+  }
+
+  // Bottom-left packing: prefer an available position in the highest row.
+  // Width is based on the actual CSS viewport, including desktop zoom level.
+  function findSpot(width, height) {
+    const gap = gapNow();
     const xs = new Set([0]);
-    for (const item of placed) xs.add(item.x + item.w + gap);
+    for (const item of occupied) xs.add(item.x + item.w + gap);
     let best = null;
     for (const x of xs) {
-      if (x + width > areaWidth + 0.5) continue;
+      if (x + width > layoutWidth + 0.5) continue;
+      const blockers = occupied.filter(item =>
+        x < item.x + item.w + gap && x + width + gap > item.x
+      ).sort((a,b) => a.y - b.y);
       let y = 0;
-      for (let retry = 0; retry <= placed.length; retry++) {
-        let next = y;
-        for (const other of placed) {
-          if (x < other.x+other.w+gap && x+width+gap > other.x &&
-              y < other.y+other.h+gap && y+height+gap > other.y) {
-            next = Math.max(next, other.y+other.h+gap);
-          }
+      for (const item of blockers) {
+        if (item.y >= y + height + gap) break;
+        if (y < item.y + item.h + gap &&
+            y + height + gap > item.y) {
+          y = item.y + item.h + gap;
         }
-        if (next === y) break;
-        y = next;
       }
-      const score = y+height;
-      if (!best || score < best.score ||
-          (score === best.score && (y < best.y || (y === best.y && x < best.x)))) {
-        best = {x,y,score};
+      if (best === null || y < best.y - 0.01 ||
+          (Math.abs(y - best.y) <= 0.01 && x < best.x)) {
+        best = {x, y};
       }
     }
-    return best || {x:0,y:wallHeight,score:wallHeight+height};
+    return best || {x:0,y:wallHeight + gap};
+  }
+
+  function dimensions(index) {
+    const ad = adSizes[index];
+    const scale = Math.min(1,layoutWidth/ad.width);
+    return {w:ad.width * scale, h:ad.height * scale, scale};
+  }
+
+  function position(tile) {
+    const {w,h,scale} = dimensions(tile.index);
+    const p = findSpot(w,h);
+    tile.box.style.left = p.x + "px";
+    tile.box.style.top = p.y + "px";
+    tile.box.style.width = w + "px";
+    tile.box.style.height = h + "px";
+    tile.frame.style.transform = "scale(" + scale + ")";
+    occupied.push({x:p.x,y:p.y,w,h});
+    wallHeight = Math.max(wallHeight,p.y + h);
+  }
+
+  function setWallHeight() {
+    wall.style.height = Math.ceil(wallHeight) + "px";
   }
 
   function rearrange() {
-    const areaWidth = Math.max(1,wall.clientWidth);
-    const gap = areaWidth <= 320 ? 0 : 6;
-    const placed = [];
+    layoutWidth = widthNow();
+    occupied.length = 0;
     wallHeight = 0;
-    for (const tile of tiles) {
-      const type = adSizes[tile.index];
-      const scale = Math.min(1, areaWidth/type.width);
-      const w = type.width*scale;
-      const h = type.height*scale;
-      const p = findSpot(w,h,placed,areaWidth,gap);
-      tile.box.style.left = p.x+"px";
-      tile.box.style.top = p.y+"px";
-      tile.box.style.width = w+"px";
-      tile.box.style.height = h+"px";
-      tile.frame.style.transform = "scale("+scale+")";
-      placed.push({x:p.x,y:p.y,w,h});
-      wallHeight = Math.max(wallHeight,p.y+h);
-    }
-    wall.style.height = Math.ceil(wallHeight)+"px";
-    layoutWidth = areaWidth;
+    for (const tile of tiles) position(tile);
+    setWallHeight();
   }
 
-  function addBatch() {
-    for (let n=0;n<10;n++) {
-      const index = order[cursor++ % order.length];
-      const ad = adSizes[index];
-      const box = document.createElement("div");
-      box.className = "ad-tile";
-      const frame = document.createElement("iframe");
-      frame.title = "Advertisement";
-      frame.loading = "lazy";
-      frame.referrerPolicy = "strict-origin-when-cross-origin";
-      frame.width = ad.width;
-      frame.height = ad.height;
-      frame.style.width = ad.width+"px";
-      frame.style.height = ad.height+"px";
-      const url = new URL(location.href);
-      url.searchParams.set("slot",String(index));
-      frame.src = url.href;
-      box.appendChild(frame);
-      wall.appendChild(box);
-      tiles.push({index,box,frame});
-    }
-    rearrange();
+  function topHasSpace() {
+    if (!tiles.length) return true;
+    // 160px is the narrowest supplied unit; scale it on narrow screens.
+    const smallest = Math.min(160,layoutWidth);
+    return findSpot(smallest,1).y < 0.5;
   }
 
-  function appendOnDemand() {
+  function chooseNextIndex() {
+    const normal = order[cursor++ % order.length];
+    if (!topHasSpace()) return normal;
+
+    // While a top-row gap can still fit an ad, take the widest unit that
+    // fits that gap instead of starting another row prematurely.
+    let chosen = normal;
+    let widest = -1;
+    for (let index = 0; index < adSizes.length; index++) {
+      const {w,h} = dimensions(index);
+      if (findSpot(w,h).y < 0.5 && w > widest) {
+        chosen = index;
+        widest = w;
+      }
+    }
+    return chosen;
+  }
+
+  function addTile() {
+    const index = chooseNextIndex();
+    const ad = adSizes[index];
+    const box = document.createElement("div");
+    box.className = "ad-tile";
+    const frame = document.createElement("iframe");
+    frame.title = "Advertisement";
+    frame.loading = "lazy";
+    frame.referrerPolicy = "strict-origin-when-cross-origin";
+    frame.width = ad.width;
+    frame.height = ad.height;
+    frame.style.width = ad.width + "px";
+    frame.style.height = ad.height + "px";
+    const url = new URL(location.href);
+    url.searchParams.set("slot",String(index));
+    frame.src = url.href;
+    box.appendChild(frame);
+    wall.appendChild(box);
+    const tile = {index,box,frame};
+    tiles.push(tile);
+    position(tile);
+    setWallHeight();
+  }
+
+  function needsMore() {
+    // Fill the new horizontal space first after desktop zoom-out.
+    if (topHasSpace()) return true;
+    // Only after width is occupied, extend below the visible region.
+    return wall.getBoundingClientRect().bottom < innerHeight + PREFETCH;
+  }
+
+  function pump() {
     if (scheduled) return;
     scheduled = true;
     requestAnimationFrame(() => {
       scheduled = false;
-      addBatch();
-      // Continue filling until the next trigger is below the visible area.
-      // After that, new placements are added only when visitors scroll.
-      if (sentinel.getBoundingClientRect().top < innerHeight + 600) {
-        appendOnDemand();
+      let added = 0;
+      while (added < CHUNK_SIZE && needsMore()) {
+        addTile();
+        added++;
       }
+      if (needsMore()) pump();
     });
   }
 
+  function resizeLayout() {
+    if (resizeScheduled) return;
+    resizeScheduled = true;
+    requestAnimationFrame(() => {
+      resizeScheduled = false;
+      if (Math.abs(widthNow() - layoutWidth) >= 1) rearrange();
+      pump();
+    });
+  }
+
+  layoutWidth = widthNow();
   const observer = new IntersectionObserver(entries => {
-    if (entries.some(entry => entry.isIntersecting)) appendOnDemand();
-  }, {rootMargin:"600px 0px"});
-  addBatch();
+    if (entries.some(entry => entry.isIntersecting)) pump();
+  }, {rootMargin:PREFETCH + "px 0px"});
   observer.observe(sentinel);
-  window.addEventListener("resize",() => {
-    if (wall.clientWidth !== layoutWidth) rearrange();
-  },{passive:true});
+  window.addEventListener("resize",resizeLayout,{passive:true});
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener("resize",resizeLayout,{passive:true});
+  }
+  pump();
 }
 </script>
 </body>

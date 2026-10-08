@@ -7,74 +7,491 @@
 <style>
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;background:#000}
-body{overflow-x:hidden}
-.wall{width:100%;padding:1px;column-count:2;column-gap:1px}
-.slot{width:100%;margin:0 0 1px;break-inside:avoid;background:#000;overflow:hidden}
-.framebox{transform-origin:top left}
-.adframe{display:block;border:0;background:#000}
+body{overflow-x:hidden;background:#000}
+.wall{
+  width:100%;
+  padding:1px;
+  column-count:2;
+  column-gap:1px;
+}
+.slot{
+  width:100%;
+  margin:0 0 1px;
+  break-inside:avoid;
+  -webkit-column-break-inside:avoid;
+  overflow:hidden;
+  background:#000;
+}
+.adbox{
+  position:relative;
+  transform-origin:top left;
+}
+.adbox iframe{
+  display:block!important;
+  border:0!important;
+  max-width:none!important;
+}
 @media(min-width:600px){.wall{column-count:3}}
 @media(min-width:900px){.wall{column-count:5}}
 @media(min-width:1300px){.wall{column-count:7}}
 </style>
 </head>
 <body>
-<main class="wall" id="wall"><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section><section class="slot" data-w="728" data-h="90" data-key="797c350931164b2af01d762860993be3"><div class="framebox"></div></section><section class="slot" data-w="320" data-h="50" data-key="008faa77f149997884b507f444cfb4cd"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="600" data-key="d770303609f4c4028b2b1446cf810ac1"><div class="framebox"></div></section><section class="slot" data-w="160" data-h="300" data-key="74623eb82832c7260317b236874c435f"><div class="framebox"></div></section><section class="slot" data-w="468" data-h="60" data-key="aea01d34a2c5e0b8c07ee9c98a71a19a"><div class="framebox"></div></section></main>
+<main class="wall" id="wall">
+
+<section class="slot" data-w="728" data-h="90">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot" data-w="320" data-h="50">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="600">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="300">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot" data-w="468" data-h="60">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot" data-w="728" data-h="90">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot" data-w="320" data-h="50">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="600">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="300">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot" data-w="468" data-h="60">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot" data-w="728" data-h="90">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot" data-w="320" data-h="50">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="600">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="300">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot" data-w="468" data-h="60">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot" data-w="728" data-h="90">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot" data-w="320" data-h="50">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="600">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="300">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot" data-w="468" data-h="60">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot" data-w="728" data-h="90">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot" data-w="320" data-h="50">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="600">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="300">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot" data-w="468" data-h="60">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+<section class="slot" data-w="728" data-h="90">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'797c350931164b2af01d762860993be3',
+        'format':'iframe',
+        'height':90,
+        'width':728,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/797c350931164b2af01d762860993be3"></script>
+  </div>
+</section>
+<section class="slot" data-w="320" data-h="50">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'008faa77f149997884b507f444cfb4cd',
+        'format':'iframe',
+        'height':50,
+        'width':320,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/008faa77f149997884b507f444cfb4cd"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="600">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'d770303609f4c4028b2b1446cf810ac1',
+        'format':'iframe',
+        'height':600,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/d770303609f4c4028b2b1446cf810ac1"></script>
+  </div>
+</section>
+<section class="slot" data-w="160" data-h="300">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'74623eb82832c7260317b236874c435f',
+        'format':'iframe',
+        'height':300,
+        'width':160,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/74623eb82832c7260317b236874c435f"></script>
+  </div>
+</section>
+<section class="slot" data-w="468" data-h="60">
+  <div class="adbox">
+    <script>
+      atOptions = {
+        'key':'aea01d34a2c5e0b8c07ee9c98a71a19a',
+        'format':'iframe',
+        'height':60,
+        'width':468,
+        'params':{}
+      };
+    </script>
+    <script src="https://biomanos.org/22/aea01d34a2c5e0b8c07ee9c98a71a19a"></script>
+  </div>
+</section>
+</main>
 
 <script>
-(() => {
-  const esc = s => s.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
-
-  function srcdocFor(key,w,h){
-    return '<!doctype html><html><head><meta name="viewport" content="width='+w+',initial-scale=1"><style>html,body{margin:0;padding:0;width:'+w+'px;height:'+h+'px;overflow:hidden;background:#000}iframe{border:0!important;display:block!important}</style></head><body>'
-      + '<script>atOptions={key:"'+key+'",format:"iframe",height:'+h+',width:'+w+',params:{}};<' + '/script>'
-      + '<script src="https://biomanos.org/22/'+key+'"><' + '/script>'
-      + '</body></html>';
-  }
-
-  function mount(slot){
-    if(slot.dataset.mounted) return;
-    slot.dataset.mounted='1';
-
-    const w=Number(slot.dataset.w);
-    const h=Number(slot.dataset.h);
-    const box=slot.querySelector('.framebox');
-    const available=Math.max(1,slot.clientWidth);
-    const scale=Math.min(1,available/w);
-
-    box.style.width=w+'px';
-    box.style.height=h+'px';
-    box.style.transform='scale('+scale+')';
-    slot.style.height=Math.max(1,Math.round(h*scale))+'px';
-
-    const frame=document.createElement('iframe');
-    frame.className='adframe';
-    frame.width=w;
-    frame.height=h;
-    frame.scrolling='no';
-    frame.setAttribute('allow','autoplay; fullscreen');
-    frame.srcdoc=srcdocFor(slot.dataset.key,w,h);
-    box.appendChild(frame);
-  }
-
+(function(){
   function fit(slot){
-    const w=Number(slot.dataset.w);
-    const h=Number(slot.dataset.h);
-    const box=slot.querySelector('.framebox');
-    const available=Math.max(1,slot.clientWidth);
-    const scale=Math.min(1,available/w);
-    box.style.width=w+'px';
-    box.style.height=h+'px';
-    box.style.transform='scale('+scale+')';
-    slot.style.height=Math.max(1,Math.round(h*scale))+'px';
+    const box = slot.querySelector('.adbox');
+    if(!box) return;
+
+    const w = Number(slot.dataset.w);
+    const h = Number(slot.dataset.h);
+    const available = Math.max(1, slot.clientWidth);
+    const scale = Math.min(1, available / w);
+
+    box.style.width = w + 'px';
+    box.style.height = h + 'px';
+    box.style.transform = 'scale(' + scale + ')';
+    slot.style.height = Math.max(1, Math.ceil(h * scale)) + 'px';
   }
 
-  document.querySelectorAll('.slot').forEach(mount);
+  function fitAll(){
+    document.querySelectorAll('.slot').forEach(fit);
+  }
 
-  let t;
-  addEventListener('resize',()=>{
-    clearTimeout(t);
-    t=setTimeout(()=>document.querySelectorAll('.slot').forEach(fit),80);
-  },{passive:true});
+  fitAll();
+  addEventListener('load', fitAll);
+  setTimeout(fitAll, 500);
+  setTimeout(fitAll, 1500);
+
+  let timer;
+  addEventListener('resize', function(){
+    clearTimeout(timer);
+    timer = setTimeout(fitAll, 80);
+  }, {passive:true});
 })();
 </script>
 
